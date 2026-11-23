@@ -57,12 +57,12 @@ function Nav({ close }: { close?: () => void }) {
       <div className="flex items-center gap-3">
         <div className="grid h-9 w-9 place-items-center rounded-full bg-[#dfe8e3] text-xs font-bold text-[#3f6b58]">KK</div>
         <div>
-          <div className="text-xs font-semibold">KAJU Katli</div>
+          <div className="text-xs font-semibold">KAJU KATLI</div>
           <div className="text-[11px] text-[#667085]">Administrator</div>
         </div>
       </div>
       <p className="mt-4 border-t border-[#eef0f2] pt-3 text-center text-[10px] tracking-wide text-[#98a2b3]">
-        Made with love by KAJU Katli
+        Made with <span className="font-semibold text-[#d92d20]" aria-label="love">♥</span> by KAJU KATLI
       </p>
     </div>
   </>;
