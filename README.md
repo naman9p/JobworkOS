@@ -1,0 +1,50 @@
+# JobworkOS
+
+JobworkOS is a responsive manufacturing job-work management prototype for coordinating outsourced production, material custody, quality, reconciliation, and supplier performance.
+
+## Included
+
+- Next.js App Router, React, TypeScript, Tailwind CSS and Lucide icons
+- Enterprise operations dashboard and responsive navigation
+- Job orders, workflow detail, suppliers and supplier workbench
+- Material movement ledger with separate receipt acknowledgement records
+- Reconciliation, inspections, alerts and operational reports
+- Supabase SSR client, normalized PostgreSQL migration, RLS foundation and Zod validation
+- Automated tests for reconciliation, inspection validation, transitions and closure
+- Clearly identified demo records in `src/lib/demo-data.ts`
+
+The interface runs immediately using demo records. Supabase is the persistent production target.
+
+## Local setup
+
+1. Install Node.js 20 or newer and run `npm install`.
+2. Copy `.env.example` to `.env.local` and add Supabase values.
+3. Run `npm run dev`, then open `http://localhost:3000`.
+4. Validate with `npm run test`, `npm run typecheck`, `npm run lint`, and `npm run build`.
+
+## Supabase setup
+
+1. Create a hosted Supabase project.
+2. Apply `supabase/migrations/202611230001_initial.sql` in the SQL editor, or link the Supabase CLI and run `supabase db push`.
+3. Enable the Email provider and add localhost plus the Vercel domain to Auth redirect URLs.
+4. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only.
+5. Create demo Auth users in the dashboard. Insert matching `user_profiles` rows using their Auth UUIDs and one role: `administrator`, `planner`, `store`, `supplier`, `quality_inspector`, or `manager`.
+6. Create the manufacturer organization first, then associate profiles and operational records to its UUID.
+
+Suggested demo users are one per role plus one per supplier. Use temporary passwords delivered securely; never commit credentials.
+
+## Security model
+
+The migration provides UUID keys, foreign keys, quantity constraints, indexes, organization scoping, immutable movement events and RLS-enabled tables. `current_org()` anchors tenant policies. Before production use, complete supplier-assignment-specific select policies, mutation policies for every role, Storage policies, audit triggers and transactional RPCs.
+
+## GitHub and Vercel
+
+1. Run `git init`, commit the source and push it to GitHub.
+2. In Vercel, import that repository as a new project; keep the detected Next.js defaults.
+3. Add variables from `.env.example` for Preview and Production.
+4. Deploy and add the final Vercel URL to Supabase Auth redirects.
+5. Verify each role and the create → dispatch → receipt → progress → return → inspect → reconcile → close workflow.
+
+## Prototype boundaries
+
+The screens and calculation rules are implemented and testable. The Supabase client, schema, validation and initial create-job action establish the persistence architecture. Full mutation wiring, complete supplier-specific RLS/write policies, document uploads, transactional workflow RPCs and automated Auth seeding remain production follow-up work. Login and signup are demonstration interfaces until their Supabase actions are connected.
