@@ -1,1 +1,14 @@
-import{PageHead}from"@/components/page-head";export default function Reports(){const bars=[["Apex CNC",96],["Precision Works",92],["CoatRight",98],["ThermaTreat",84]];return <><PageHead title="Reports & Analytics" description="Delivery, quality and supplier performance indicators." action={<select className="input w-44"><option>Last 30 days</option><option>Last quarter</option></select>}/><div className="mb-6 grid gap-3 sm:grid-cols-4">{[["On-time completion","92.5%"],["OTIF","89.2%"],["First-pass yield","96.8%"],["Avg. stage cycle","4.6 days"]].map(x=><div className="panel p-4" key={x[0]}><div className="label">{x[0]}</div><div className="mt-2 text-2xl font-semibold">{x[1]}</div><div className="mt-2 text-[11px] text-[#3f8067]">Based on completed records</div></div>)}</div><div className="grid gap-6 lg:grid-cols-2"><section className="panel p-5"><h2 className="font-semibold">Supplier on-time completion</h2><p className="mt-1 text-xs text-[#667085]">Completed stages within planned deadline</p><div className="mt-6 space-y-5">{bars.map(([n,v])=><div key={n}><div className="mb-2 flex justify-between text-xs"><span>{n}</span><b>{v}%</b></div><div className="h-2 rounded bg-[#eaecf0]"><div className="h-2 rounded bg-[#4f7565]" style={{width:`${v}%`}}/></div></div>)}</div></section><section className="panel p-5"><h2 className="font-semibold">Job status distribution</h2><p className="mt-1 text-xs text-[#667085]">Current order portfolio</p><div className="mt-8 grid grid-cols-2 gap-4">{[["Active",6,"#304a5f"],["Completed",2,"#4f7565"],["Delayed",2,"#c58a32"],["Pending",1,"#98a2b3"]].map(([n,v,c])=><div className="rounded border border-[#e4e7ec] p-4" key={n}><div className="mb-3 h-2 w-8 rounded" style={{background:String(c)}}/><div className="text-2xl font-semibold">{v}</div><div className="text-xs text-[#667085]">{n}</div></div>)}</div></section></div></>}
+import { Suspense } from "react";
+import Link from "next/link";
+import { PageHead } from "@/components/page-head";
+import { savedJobs } from "@/lib/saved-jobs";
+
+async function Portfolio() {
+  const { jobs, error } = await savedJobs();
+  if (error) return <p role="alert" className="panel p-5 text-red-700">{error}</p>;
+  return <section className="panel p-5"><h2 className="font-semibold">Job status distribution</h2><p className="mt-1 text-xs text-[#667085]">Current order portfolio · {jobs.length} saved orders</p><div className="mt-6 grid gap-4 sm:grid-cols-3 lg:grid-cols-5">{["Pending", "Active", "Delayed", "Blocked", "Completed"].map(status => <div key={status} className="rounded border border-[#e4e7ec] p-4"><div className="text-2xl font-semibold">{jobs.filter(job => job.status === status).length}</div><div className="mt-1 text-xs text-[#667085]">{status}</div></div>)}</div><Link href="/jobs" className="mt-5 inline-block font-semibold text-[#304a5f] underline">View job orders</Link></section>;
+}
+
+export default function Reports() {
+  return <><PageHead title="Reports & Analytics" description="Status counts from your saved job orders."/><Suspense fallback={<p className="panel p-5">Loading order portfolio…</p>}><Portfolio/></Suspense></>;
+}

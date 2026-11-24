@@ -21,6 +21,8 @@ export async function createJob(_: Result, form: FormData): Promise<Result> {
   const { error } = await db.from("job_orders").insert({ organization_id: org, created_by: user.id, job_number: number, title: p.title, product: p.product, material: p.material, quantity: p.quantity, unit: p.unit, priority: p.priority, start_date: p.startDate.toISOString().slice(0,10), due_date: p.dueDate.toISOString().slice(0,10), instructions: p.instructions });
   if (error) return { error: "Order was not saved: " + error.message };
   revalidatePath("/jobs");
+  revalidatePath("/dashboard");
+  revalidatePath("/reports");
   return { message: `${number} created successfully. Find it by job ID, title or product in Job Orders.`, href: "/jobs" };
  } catch { return { error: "Unable to save this order. Check the server connection and try again." }; }
 }
