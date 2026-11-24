@@ -1,1 +1,24 @@
-"use server";import{revalidatePath}from"next/cache";import{createClient}from"@/lib/supabase/server";import{jobSchema}from"@/lib/schemas";export async function createJob(formData:FormData){const parsed=jobSchema.safeParse(Object.fromEntries(formData));if(!parsed.success)return{ok:false,error:parsed.error.issues[0]?.message};const supabase=await createClient();const{data:{user}}=await supabase.auth.getUser();if(!user)return{ok:false,error:"Authentication required"};const{data:profile}=await supabase.from("user_profiles").select("organization_id,role").eq("id",user.id).single();if(!profile||!["administrator","planner"].includes(profile.role))return{ok:false,error:"You are not authorized to create jobs"};const{error}=await supabase.from("job_orders").insert({...parsed.data,organization_id:profile.organization_id,created_by:user.id});if(error)return{ok:false,error:error.message};revalidatePath("/jobs");revalidatePath("/dashboard");return{ok:true,error:null}}
+"use server";
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { jobSchema } from "@/lib/schemas";
+import type { Result } from "@/components/action-form";
+export async function createJob(_: Result, form: FormData): Promise<Result> {
+ const parsed = jobSchema.safeParse(Object.fromEntries(form));
+ if (!parsed.success) return { error: parsed.error.issues[0]?.message };
+ try {
+  const db = await createClient();
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return { error: "Please sign in before creating an order." };
+  const { data: org, error: setupError } = await db.rpc("ensure_personal_workspace");
+  if (setupError) return { error: "Workspace setup failed. Please apply the latest database migration. " + setupError.message };
+  const { data: profile } = await db.from("user_profiles").select("role").eq("id", user.id).single();
+  if (!profile || !["administrator", "planner"].includes(profile.role)) return { error: "Your account does not have permission to create orders." };
+  const p = parsed.data;
+  const number = `JOB-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+  const { error } = await db.from("job_orders").insert({ organization_id: org, created_by: user.id, job_number: number, title: p.title, product: p.product, material: p.material, quantity: p.quantity, unit: p.unit, priority: p.priority, start_date: p.startDate.toISOString().slice(0,10), due_date: p.dueDate.toISOString().slice(0,10), instructions: p.instructions });
+  if (error) return { error: "Order was not saved: " + error.message };
+  revalidatePath("/jobs");
+  return { message: `${number} created successfully. Find it by job ID, title or product in Job Orders.`, href: "/jobs" };
+ } catch { return { error: "Unable to save this order. Check the server connection and try again." }; }
+}

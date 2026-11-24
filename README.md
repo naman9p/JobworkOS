@@ -47,4 +47,8 @@ The migration provides UUID keys, foreign keys, quantity constraints, indexes, o
 
 ## Prototype boundaries
 
-The screens and calculation rules are implemented and testable. The Supabase client, schema, validation and initial create-job action establish the persistence architecture. Full mutation wiring, complete supplier-specific RLS/write policies, document uploads, transactional workflow RPCs and automated Auth seeding remain production follow-up work. Login and signup are demonstration interfaces until their Supabase actions are connected.
+Signup, sign-in, sign-out and job creation/list/detail use Supabase. Apply both migrations in `supabase/migrations` and configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` on the deployment. Enable email/password Auth and configure email confirmation in Supabase. New users get a private workspace with the planner role on their first order; existing memberships are preserved. No service-role key is used by these flows.
+
+Verify signup confirmation, invalid credentials, sign-in name, job creation confirmation, refresh persistence, search by job ID/title, and opening a saved order. Also verify a second account cannot see the first account's orders. Local end-to-end database verification requires a configured Supabase project.
+
+Other dashboard/report screens still contain demo data. Complete supplier-specific policies, remaining workflow mutations, document uploads and transactional workflow RPCs before treating those screens as live operational records.

@@ -7,6 +7,7 @@ import {
   LogOut, Menu, Scale, Settings, ShieldCheck, TriangleAlert, Truck, X,
 } from "lucide-react";
 import { useState } from "react";
+import { signout } from "@/app/auth-actions";
 
 const nav = [
   ["Overview", "/dashboard", LayoutDashboard],
@@ -50,13 +51,13 @@ function Nav({ close }: { close?: () => void }) {
     <div className="border-t border-[#e4e7ec] p-3">
       <Link href="/settings" className="flex items-center gap-3 px-3 py-2 text-[13px] text-[#475467]"><Settings size={17} />Settings</Link>
       <Link href="/help" className="flex items-center gap-3 px-3 py-2 text-[13px] text-[#475467]"><LifeBuoy size={17} />Help</Link>
-      <Link href="/login" className="flex items-center gap-3 px-3 py-2 text-[13px] text-[#475467]"><LogOut size={17} />Logout</Link>
+      <form action={signout}><button className="flex items-center gap-3 px-3 py-2 text-[13px] text-[#475467]"><LogOut size={17} />Sign out</button></form>
     </div>
 
   </>;
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, name }: { children: React.ReactNode; name: string }) {
   const [open, setOpen] = useState(false);
   return <div className="min-h-screen">
     <aside className="desktop-nav fixed inset-y-0 left-0 z-20 flex w-[232px] flex-col border-r border-[#e4e7ec] bg-white"><Nav /></aside>
@@ -70,7 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
     </div>}
     <main className="main-shell ml-[232px] min-h-screen">
-      <div className="mx-auto max-w-[1480px] p-4 sm:p-6 lg:p-8">{children}</div>
+      <div className="mx-auto max-w-[1480px] p-4 sm:p-6 lg:p-8"><div className="mb-5 border-b border-[#e4e7ec] pb-3 text-sm">Signed in as <strong>{name}</strong></div>{children}</div>
     </main>
   </div>;
 }
