@@ -51,4 +51,12 @@ Signup, sign-in, sign-out and job creation/list/detail use Supabase. Apply both 
 
 Verify signup confirmation, invalid credentials, sign-in name, job creation confirmation, refresh persistence, search by job ID/title, and opening a saved order. Also verify a second account cannot see the first account's orders. Local end-to-end database verification requires a configured Supabase project.
 
-Other dashboard/report screens still contain demo data. Complete supplier-specific policies, remaining workflow mutations, document uploads and transactional workflow RPCs before treating those screens as live operational records.
+Overview and Reports read saved orders. Other operational screens still contain demo data. Complete supplier-specific policies, remaining workflow mutations, document uploads and transactional workflow RPCs before treating those screens as live operational records.
+
+### Team access and samples
+
+Apply all migrations in filename order, including `202611240003_team_samples.sql`. This migration adds ten `[Sample]` orders per existing workspace and seeds new workspaces once. It preserves real orders and uses stable SAMPLE IDs to avoid duplicate seeds. The samples are included in the overview counts.
+
+Members can open Settings / Workspace & Team and share their workspace join code privately. New teammates sign up/sign in separately and enter the code on that page. This grants the planner role in the invited workspace. An account already containing real orders or other team members cannot switch via this flow; share its own workspace code instead. Orders are never globally exposed to unrelated signups.
+
+Supabase's built-in email sender is intended for testing and has a low project-wide limit. Configure Custom SMTP in Supabase Auth for friends/public signups and configure the email rate limit to suit that provider. The app cannot raise the hosted provider limit. Configure the production Site URL and permitted redirect URLs in Supabase Auth as well.

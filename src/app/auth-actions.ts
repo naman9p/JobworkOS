@@ -12,7 +12,7 @@ export async function signup(_: Result, form: FormData): Promise<Result> {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
-    if (error) return { error: error.message };
+    if (error) return { error: error.code === "over_email_send_rate_limit" ? "Signup emails are temporarily limited. Please try later or contact the site owner to configure the email service." : error.message };
     if (data.user?.identities?.length === 0) return { error: "This email may already be registered. Please sign in or reset your password." };
     return { message: data.session ? "Account created successfully. You can now sign in." : "Signup received. Check your email to confirm your account, then sign in." };
   } catch { return { error: "Account service unavailable. Please check the server's Supabase configuration and try again." }; }

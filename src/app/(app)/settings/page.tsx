@@ -1,1 +1,25 @@
-import{PageHead}from"@/components/page-head";export default function Settings(){return <><PageHead title="Settings" description="Organization, users, stage templates and notification preferences."/><div className="grid gap-6 lg:grid-cols-[220px_1fr]"><nav className="panel h-fit p-2">{["Organization","Users & roles","Stage templates","Notifications"].map((x,i)=><button className={`block w-full rounded px-3 py-2.5 text-left text-sm ${i===0?"bg-[#eef2f4] font-semibold text-[#304a5f]":"text-[#667085]"}`} key={x}>{x}</button>)}</nav><form className="panel"><div className="border-b border-[#e4e7ec] p-5"><h2 className="font-semibold">Organization details</h2><p className="mt-1 text-xs text-[#667085]">Shown on orders and movement documents.</p></div><div className="grid gap-5 p-5 sm:grid-cols-2"><label className="sm:col-span-2"><span className="label mb-2 block">ORGANIZATION NAME</span><input className="input" defaultValue="Vertex Manufacturing Pvt. Ltd."/></label><label><span className="label mb-2 block">ORGANIZATION CODE</span><input className="input" defaultValue="VMPL-01"/></label><label><span className="label mb-2 block">TIMEZONE</span><select className="input"><option>Asia/Kolkata (IST)</option></select></label><label className="sm:col-span-2"><span className="label mb-2 block">REGISTERED ADDRESS</span><textarea className="input min-h-24" defaultValue="Industrial Area, Pune, Maharashtra, India"/></label></div><div className="flex justify-end border-t border-[#e4e7ec] p-4"><button className="btn btn-primary">Save changes</button></div></form></div></>}
+import { Suspense } from "react";
+import { PageHead } from "@/components/page-head";
+import { ActionForm } from "@/components/action-form";
+import { joinTeam } from "@/app/team-actions";
+import { createClient } from "@/lib/supabase/server";
+
+async function TeamSettings() {
+ const db = await createClient();
+ const { data, error } = await db.rpc("workspace_join_code");
+ return <div className="mx-auto max-w-3xl space-y-6">
+  <section className="panel p-6">
+   <h2 className="text-lg font-semibold">Invite your team</h2>
+   <p className="my-3 text-[#667085]">Orders belong to a workspace. Give this code to your friends so they can join your workspace and view and create the same orders. Only share it with people you want on your team.</p>
+   {error ? <p role="alert" className="text-red-700">Workspace invitations unavailable: {error.message}</p> : <><p className="label mb-2">YOUR WORKSPACE JOIN CODE</p><code className="block select-all break-all rounded bg-[#f2f4f6] p-4">{data}</code></>}
+  </section>
+  <ActionForm action={joinTeam} label="Join workspace" className="panel p-6">
+   <h2 className="text-lg font-semibold">Join a teammate&apos;s workspace</h2>
+   <p className="my-3 text-[#667085]">Sign in with your own account, then enter their code. Accounts with real orders or team members must share their existing workspace instead.</p>
+   <label className="block">Workspace join code<input name="code" required maxLength={48} className="input mt-2" autoComplete="off"/></label>
+  </ActionForm>
+ </div>;
+}
+export default function Settings() {
+ return <><PageHead title="Workspace & Team" description="Share orders with teammates using a workspace join code."/><Suspense fallback={<p>Loading workspace settings…</p>}><TeamSettings/></Suspense></>;
+}
