@@ -20,7 +20,7 @@ const nav = [
   ["Reports", "/reports", BarChart3],
 ] as const;
 
-function Nav({ close }: { close?: () => void }) {
+function Nav({ close, name }: { close?: () => void; name: string }) {
   const path = usePathname();
 
   return <>
@@ -48,6 +48,12 @@ function Nav({ close }: { close?: () => void }) {
       })}
     </nav>
 
+    <div className="border-t border-[#e4e7ec] p-4">
+      <div className="flex min-w-0 items-center gap-3">
+        <div aria-hidden="true" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#dfe8e3] text-xs font-bold text-[#3f6b58]">{name.split(/\s+/).map(part => part[0]).slice(0, 2).join("").toUpperCase()}</div>
+        <div className="min-w-0"><div className="text-[11px] text-[#667085]">Signed in as</div><div title={name} className="break-words text-sm font-semibold">{name}</div></div>
+      </div>
+    </div>
     <div className="border-t border-[#e4e7ec] p-3">
       <Link href="/settings" className="flex items-center gap-3 px-3 py-2 text-[13px] text-[#475467]"><Settings size={17} />Settings</Link>
       <Link href="/help" className="flex items-center gap-3 px-3 py-2 text-[13px] text-[#475467]"><LifeBuoy size={17} />Help</Link>
@@ -60,14 +66,14 @@ function Nav({ close }: { close?: () => void }) {
 export function AppShell({ children, name }: { children: React.ReactNode; name: string }) {
   const [open, setOpen] = useState(false);
   return <div className="min-h-screen">
-    <aside className="desktop-nav fixed inset-y-0 left-0 z-20 flex w-[232px] flex-col border-r border-[#e4e7ec] bg-white"><Nav /></aside>
+    <aside className="desktop-nav fixed inset-y-0 left-0 z-20 flex w-[232px] flex-col overflow-y-auto border-r border-[#e4e7ec] bg-white"><Nav name={name} /></aside>
     <header className="mobile-head sticky top-0 z-20 hidden h-14 items-center justify-between border-b border-[#e4e7ec] bg-white px-4">
       <b>JobworkOS</b><button onClick={() => setOpen(true)} aria-label="Open navigation"><Menu /></button>
     </header>
     {open && <div className="fixed inset-0 z-50 bg-black/30" onClick={() => setOpen(false)}>
       <aside onClick={(event) => event.stopPropagation()} className="flex h-full w-[270px] flex-col bg-white">
         <button className="absolute left-[278px] top-4 text-white" onClick={() => setOpen(false)}><X /></button>
-        <Nav close={() => setOpen(false)} />
+        <Nav name={name} close={() => setOpen(false)} />
       </aside>
     </div>}
     <main className="main-shell ml-[232px] min-h-screen">

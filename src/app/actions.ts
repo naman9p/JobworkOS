@@ -12,8 +12,10 @@ export async function createJob(_: Result, form: FormData): Promise<Result> {
   if (!user) return { error: "Please sign in before creating an order." };
   const { data: org, error: setupError } = await db.rpc("ensure_personal_workspace");
   if (setupError) return { error: "Workspace setup failed. Please apply the latest database migration. " + setupError.message };
-  const { data: profile } = await db.from("user_profiles").select("role").eq("id", user.id).single();
-  if (!profile || !["administrator", "planner"].includes(profile.role)) return { error: "Your account does not have permission to create orders." };
+  const { data: profile, error: profileError } = await db.from("user_profiles").select("role").eq("id", user.id).single();
+  if (profileError) return { error: "Could not read your workspace profile: " + profileError.message };
+  if (!profile) return { error: "Your workspace profile is missing. Please contact the workspace owner." };
+  if (!["administrator", "planner"].includes(profile.role)) return { error: `Your workspace role is ${profile.role}. Only planners and administrators can create orders. Ask your workspace owner to update your role.` };
   const p = parsed.data;
   const number = `JOB-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
   const { error } = await db.from("job_orders").insert({ organization_id: org, created_by: user.id, job_number: number, title: p.title, product: p.product, material: p.material, quantity: p.quantity, unit: p.unit, priority: p.priority, start_date: p.startDate.toISOString().slice(0,10), due_date: p.dueDate.toISOString().slice(0,10), instructions: p.instructions });
