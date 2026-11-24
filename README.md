@@ -55,7 +55,7 @@ Overview and Reports read saved orders. Other operational screens still contain 
 
 ### Team access and samples
 
-Apply all migrations in filename order, including `202611240003_team_samples.sql`. This migration adds ten `[Sample]` orders per existing workspace and seeds new workspaces once. It preserves real orders and uses stable SAMPLE IDs to avoid duplicate seeds. The samples are included in the overview counts.
+Apply all migrations in filename order, including `202611240003_team_samples.sql`. This migration adds ten `[Sample]` orders per existing workspace and seeds new workspaces once. It preserves real orders and uses stable SAMPLE IDs to avoid duplicate seeds. Overview and Reports exclude SAMPLE IDs from operational counts. Samples remain visible in a separate dashboard section and the full Job Orders list, so example completed statuses never imply actual completed work.
 
 Members can open Settings / Workspace & Team and share their workspace join code privately. New teammates sign up/sign in separately and enter the code on that page. This grants the planner role in the invited workspace. An account already containing real orders or other team members cannot switch via this flow; share its own workspace code instead. Orders are never globally exposed to unrelated signups.
 
